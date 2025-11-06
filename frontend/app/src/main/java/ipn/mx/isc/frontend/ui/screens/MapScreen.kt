@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationServices
@@ -18,13 +19,16 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import ipn.mx.isc.frontend.ui.components.PulsingLocationMarker
+import ipn.mx.isc.frontend.ui.components.SismoMarker
+import ipn.mx.isc.frontend.viewmodel.MapViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
-    visible: Boolean = true
+    visible: Boolean = true,
+    viewModel: MapViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -38,6 +42,19 @@ fun MapScreen(
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(19.4326, -99.1332), 10f)
+    }
+    
+    // Observar los sismos del ViewModel
+    val sismos by viewModel.sismos.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    
+    // Recarga automática cada 3 minutos
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(180000)
+            viewModel.cargarSismos()
+        }
     }
 
     LaunchedEffect(locationPermissionsState.allPermissionsGranted) {
@@ -74,11 +91,24 @@ fun MapScreen(
                         myLocationButtonEnabled = false
                     )
                 ) {
+                    // Marcador de ubicación del usuario
                     userLocation?.let { location ->
                         PulsingLocationMarker(position = location)
                     }
+                    
+                    // Marcadores de sismos
+                    sismos.forEach { sismo ->
+                        SismoMarker(
+                            position = LatLng(sismo.latitud, sismo.longitud),
+                            magnitud = sismo.magnitud,
+                            onClick = {
+                                // TODO: Mostrar bottom sheet con detalles del sismo
+                            }
+                        )
+                    }
                 }
 
+                // Botón para centrar en ubicación del usuario
                 FloatingActionButton(
                     onClick = {
                         userLocation?.let {
@@ -100,6 +130,32 @@ fun MapScreen(
                         imageVector = Icons.Default.MyLocation,
                         contentDescription = "Centrar en mi ubicación"
                     )
+                }
+                
+                // Progress bar (carga de sismos) 
+                if (isLoading) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                
+                // Mostrar error si existe
+                error?.let { errorMsg ->
+                    Snackbar(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(16.dp),
+                        action = {
+                            TextButton(onClick = { viewModel.cargarSismos() }) {
+                                Text("Reintentar")
+                            }
+                        }
+                    ) {
+                        Text(errorMsg)
+                    }
                 }
             } else {
                 Column(
