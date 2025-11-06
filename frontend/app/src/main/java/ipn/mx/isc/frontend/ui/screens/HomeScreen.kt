@@ -29,11 +29,18 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (currentRoute) {
-                NavItem.Map.route -> MapScreen()
-                NavItem.Alerts.route -> AlertsScreen()
-                NavItem.Reports.route -> ReportsScreen()
-                NavItem.Settings.route -> SettingsScreen()
+            MapScreen()
+            
+            if (currentRoute == NavItem.Alerts.route) {
+                AlertsScreen()
+            }
+            
+            if (currentRoute == NavItem.Reports.route) {
+                ReportsScreen()
+            }
+            
+            if (currentRoute == NavItem.Settings.route) {
+                SettingsScreen()
             }
         }
     }
