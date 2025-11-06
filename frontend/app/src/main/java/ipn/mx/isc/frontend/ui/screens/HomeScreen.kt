@@ -29,7 +29,10 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            MapScreen()
+            MapScreen(
+                modifier = Modifier.fillMaxSize(),
+                visible = currentRoute == NavItem.Map.route
+            )
             
             if (currentRoute == NavItem.Alerts.route) {
                 AlertsScreen()
