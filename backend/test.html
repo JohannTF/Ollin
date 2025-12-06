@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API - Debug Imágenes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .config-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .config-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="file"] {
+            padding: 8px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+        
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .response.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .response.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .response.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .saved-info {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        
+        .saved-info strong {
+            color: #856404;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .image-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .debug-section {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border: 2px solid #667eea;
+        }
+
+        .debug-section h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .debug-info {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .test-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .test-buttons button {
+            font-size: 14px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test API - Debug de Imágenes</h1>
+        
+        <div class="config-section">
+            <h3>⚙️ Configuración del Servidor</h3>
+            <div class="form-group">
+                <label>URL del Backend:</label>
+                <input type="text" id="baseUrl" value="http://localhost:8080" placeholder="http://localhost:8080">
+            </div>
+        </div>
+        
+        <div class="grid">
+            <!-- Registro -->
+            <div class="card">
+                <h2>📝 Registro</h2>
+                <form id="registroForm">
+                    <div class="form-group">
+                        <label>Nombre:</label>
+                        <input type="text" id="regNombre" placeholder="Juan Pérez" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Correo:</label>
+                        <input type="email" id="regCorreo" placeholder="juan@ejemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" id="regContrasena" placeholder="********" required>
+                    </div>
+                    <button type="submit">Registrar Usuario</button>
+                </form>
+                <div id="registroResponse"></div>
+            </div>
+
+            <!-- Login -->
+            <div class="card">
+                <h2>🔑 Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Correo:</label>
+                        <input type="email" id="loginCorreo" placeholder="juan@ejemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" id="loginContrasena" placeholder="********" required>
+                    </div>
+                    <button type="submit">Iniciar Sesión</button>
+                </form>
+                <div id="loginResponse"></div>
+            </div>
+
+            <!-- Subir Imagen con Debug -->
+            <div class="card">
+                <h2>📷 Subir Imagen (con Debug)</h2>
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label>Seleccionar Imagen:</label>
+                        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/gif" required>
+                    </div>
+                    <button type="submit" id="uploadBtn">Subir y Convertir a Base64</button>
+                </form>
+
+                <div class="test-buttons">
+                    <button class="btn-secondary" onclick="generarImagenPrueba()">Generar Imagen de Prueba</button>
+                    <button class="btn-secondary" onclick="validarImagenActual()">Validar Imagen Actual</button>
+                </div>
+
+                <div id="uploadResponse"></div>
+                
+                <div id="imagePreview" class="image-preview" style="display:none;">
+                    <img id="previewImg" src="" alt="Preview">
+                    <div id="imageInfo" class="image-info"></div>
+                </div>
+
+                <div id="debugSection" class="debug-section" style="display:none;">
+                    <h4>🔍 Debug Info</h4>
+                    <div id="debugInfo" class="debug-info"></div>
+                </div>
+            </div>
+
+            <!-- Obtener Perfil -->
+            <div class="card">
+                <h2>👤 Obtener Perfil</h2>
+                <div id="perfilInfo" class="saved-info" style="display:none;">
+                    <strong>Usuario ID guardado:</strong> <span id="savedUserId"></span>
+                </div>
+                <form id="perfilForm">
+                    <div class="form-group">
+                        <label>ID de Usuario:</label>
+                        <input type="text" id="perfilId" placeholder="UUID del usuario" required>
+                    </div>
+                    <button type="submit">Obtener Perfil</button>
+                </form>
+                <div id="perfilResponse"></div>
+                <div id="perfilImagePreview" class="image-preview" style="display:none;">
+                    <img id="perfilPreviewImg" src="" alt="Foto de perfil">
+                    <div id="perfilImageInfo" class="image-info"></div>
+                </div>
+            </div>
+
+            <!-- Actualizar Perfil -->
+            <div class="card">
+                <h2>✏️ Actualizar Perfil</h2>
+                <div id="updateInfo" class="saved-info" style="display:none;">
+                    <strong>Usuario ID guardado:</strong> <span id="savedUserId2"></span>
+                </div>
+                <form id="updateForm">
+                    <div class="form-group">
+                        <label>ID de Usuario:</label>
+                        <input type="text" id="updateId" placeholder="UUID del usuario" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nuevo Nombre (opcional):</label>
+                        <input type="text" id="updateNombre" placeholder="Juan Pérez García">
+                    </div>
+                    <div class="form-group">
+                        <label>URL Imagen Perfil (Base64):</label>
+                        <textarea id="updateImagen" placeholder="data:image/jpeg;base64,..." rows="3" style="font-family: monospace; font-size: 12px;"></textarea>
+                    </div>
+                    <button type="submit">Actualizar Perfil</button>
+                </form>
+                <div id="updateResponse"></div>
+            </div>
+
+            <!-- Cambiar Contraseña -->
+            <div class="card">
+                <h2>🔒 Cambiar Contraseña</h2>
+                <div id="passwordInfo" class="saved-info" style="display:none;">
+                    <strong>Usuario ID guardado:</strong> <span id="savedUserId3"></span>
+                </div>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label>ID de Usuario:</label>
+                        <input type="text" id="passwordId" placeholder="UUID del usuario" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña Actual:</label>
+                        <input type="password" id="passwordActual" placeholder="********" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva Contraseña:</label>
+                        <input type="password" id="passwordNueva" placeholder="********" required>
+                    </div>
+                    <button type="submit">Cambiar Contraseña</button>
+                </form>
+                <div id="passwordResponse"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let savedUserId = null;
+        let currentImageBase64 = null;
+
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'error' : 'success';
+            element.className = `response ${className}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        function getBaseUrl() {
+            return document.getElementById('baseUrl').value;
+        }
+
+        function updateSavedUserId(userId) {
+            savedUserId = userId;
+            document.getElementById('perfilId').value = userId;
+            document.getElementById('updateId').value = userId;
+            document.getElementById('passwordId').value = userId;
+            document.getElementById('savedUserId').textContent = userId;
+            document.getElementById('savedUserId2').textContent = userId;
+            document.getElementById('savedUserId3').textContent = userId;
+            document.getElementById('perfilInfo').style.display = 'block';
+            document.getElementById('updateInfo').style.display = 'block';
+            document.getElementById('passwordInfo').style.display = 'block';
+        }
+
+        function showDebugInfo(imageUrl) {
+            const debugSection = document.getElementById('debugSection');
+            const debugInfo = document.getElementById('debugInfo');
+            
+            debugSection.style.display = 'block';
+            
+            const parts = imageUrl.split(',');
+            const header = parts[0];
+            const base64Data = parts.length > 1 ? parts[1] : '';
+            
+            const info = {
+                'Formato completo': imageUrl.substring(0, 50) + '...',
+                'Header': header,
+                'Longitud Base64': base64Data.length,
+                'Tamaño estimado (KB)': Math.round((base64Data.length * 3 / 4) / 1024),
+                'Empieza con data:': imageUrl.startsWith('data:'),
+                'Contiene image/': imageUrl.includes('image/'),
+                'Tiene coma': imageUrl.includes(','),
+                'Primeros 100 chars': imageUrl.substring(0, 100)
+            };
+            
+            debugInfo.innerHTML = Object.entries(info)
+                .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+                .join('<br>');
+        }
+
+        function generarImagenPrueba() {
+            // Crear un canvas con una imagen simple
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            
+            // Fondo azul
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(0, 0, 200, 200);
+            
+            // Texto
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 30px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('TEST', 100, 80);
+            ctx.fillText('IMAGE', 100, 120);
+            
+            // Convertir a Base64
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            currentImageBase64 = dataUrl;
+            
+            // Mostrar
+            document.getElementById('previewImg').src = dataUrl;
+            document.getElementById('imagePreview').style.display = 'block';
+            document.getElementById('updateImagen').value = dataUrl;
+            
+            const sizeKB = Math.round((dataUrl.length * 3 / 4) / 1024);
+            document.getElementById('imageInfo').innerHTML = `
+                <strong>Imagen de prueba generada</strong><br>
+                <strong>Tipo:</strong> image/jpeg<br>
+                <strong>Tamaño:</strong> ${sizeKB} KB<br>
+                <button onclick="copyImageUrl()" style="margin-top:10px; padding:8px 16px; background:#667eea; color:white; border:none; border-radius:5px; cursor:pointer;">
+                    Copiar URL Base64
+                </button>
+            `;
+            
+            showDebugInfo(dataUrl);
+            showResponse('uploadResponse', { 
+                mensaje: 'Imagen de prueba generada localmente',
+                tamaño: `${sizeKB} KB`
+            }, false);
+        }
+
+        function validarImagenActual() {
+            if (!currentImageBase64) {
+                showResponse('uploadResponse', { error: 'No hay imagen cargada' }, true);
+                return;
+            }
+            
+            const validaciones = {
+                'Tiene contenido': currentImageBase64.length > 0,
+                'Empieza con data:': currentImageBase64.startsWith('data:'),
+                'Tiene image/': currentImageBase64.includes('image/'),
+                'Tiene base64,': currentImageBase64.includes('base64,'),
+                'Formato correcto': /^data:image\/(jpeg|jpg|png|gif);base64,/.test(currentImageBase64),
+                'Tamaño': Math.round((currentImageBase64.length * 3 / 4) / 1024) + ' KB'
+            };
+            
+            showResponse('uploadResponse', validaciones, false);
+            showDebugInfo(currentImageBase64);
+        }
+
+        function copyImageUrl() {
+            if (currentImageBase64) {
+                navigator.clipboard.writeText(currentImageBase64).then(() => {
+                    alert('✅ URL Base64 copiada al portapapeles');
+                }).catch(err => {
+                    alert('❌ Error al copiar: ' + err);
+                });
+            }
+        }
+
+        // SUBIR IMAGEN
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showResponse('uploadResponse', { error: 'Por favor selecciona una imagen' }, true);
+                return;
+            }
+
+            const uploadBtn = document.getElementById('uploadBtn');
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Subiendo...';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/imagenes/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.imagenUrl) {
+                    currentImageBase64 = result.imagenUrl;
+                    
+                    showResponse('uploadResponse', {
+                        mensaje: result.mensaje,
+                        tipo: result.type,
+                        tamaño: `${(result.size / 1024).toFixed(2)} KB`
+                    }, false);
+                    
+                    document.getElementById('previewImg').src = result.imagenUrl;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('imageInfo').innerHTML = `
+                        <strong>Tipo:</strong> ${result.type}<br>
+                        <strong>Tamaño:</strong> ${(result.size / 1024).toFixed(2)} KB<br>
+                        <strong>Data URI generado correctamente</strong><br>
+                        <button onclick="copyImageUrl()" style="margin-top:10px; padding:8px 16px; background:#667eea; color:white; border:none; border-radius:5px; cursor:pointer;">
+                            Copiar URL Base64
+                        </button>
+                    `;
+                    
+                    document.getElementById('updateImagen').value = result.imagenUrl;
+                    showDebugInfo(result.imagenUrl);
+                } else {
+                    showResponse('uploadResponse', result, true);
+                }
+            } catch (error) {
+                showResponse('uploadResponse', { error: error.message }, true);
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Subir y Convertir a Base64';
+            }
+        });
+
+        // REGISTRO
+        document.getElementById('registroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                nombre: document.getElementById('regNombre').value,
+                correo: document.getElementById('regCorreo').value,
+                contrasena: document.getElementById('regContrasena').value
+            };
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/auth/registro`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showResponse('registroResponse', result, !response.ok);
+                
+                if (response.ok && result.id) {
+                    updateSavedUserId(result.id);
+                    document.getElementById('loginCorreo').value = data.correo;
+                    document.getElementById('loginContrasena').value = data.contrasena;
+                }
+            } catch (error) {
+                showResponse('registroResponse', { error: error.message }, true);
+            }
+        });
+
+        // LOGIN
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                correo: document.getElementById('loginCorreo').value,
+                contrasena: document.getElementById('loginContrasena').value
+            };
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showResponse('loginResponse', result, !response.ok);
+                
+                if (response.ok && result.id) {
+                    updateSavedUserId(result.id);
+                }
+            } catch (error) {
+                showResponse('loginResponse', { error: error.message }, true);
+            }
+        });
+
+        // OBTENER PERFIL
+        document.getElementById('perfilForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const usuarioId = document.getElementById('perfilId').value;
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/auth/perfil/${usuarioId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showResponse('perfilResponse', result, false);
+                    
+                    if (result.imagenPerfilUrl) {
+                        document.getElementById('perfilPreviewImg').src = result.imagenPerfilUrl;
+                        document.getElementById('perfilImagePreview').style.display = 'block';
+                        
+                        const sizeKB = Math.round((result.imagenPerfilUrl.length * 3 / 4) / 1024);
+                        document.getElementById('perfilImageInfo').innerHTML = `
+                            <strong>Imagen de perfil cargada</strong><br>
+                            <strong>Tamaño:</strong> ${sizeKB} KB<br>
+                            <strong>Formato válido:</strong> ${result.imagenPerfilUrl.startsWith('data:image/') ? '✅ Sí' : '❌ No'}
+                        `;
+                    } else {
+                        document.getElementById('perfilImagePreview').style.display = 'none';
+                    }
+                } else {
+                    showResponse('perfilResponse', { error: 'Usuario no encontrado' }, true);
+                }
+            } catch (error) {
+                showResponse('perfilResponse', { error: error.message }, true);
+            }
+        });
+
+        // ACTUALIZAR PERFIL
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const usuarioId = document.getElementById('updateId').value;
+            const data = {};
+            
+            const nombre = document.getElementById('updateNombre').value;
+            const imagen = document.getElementById('updateImagen').value;
+            
+            if (nombre) data.nombre = nombre;
+            if (imagen) data.imagenPerfilUrl = imagen;
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/auth/perfil/${usuarioId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showResponse('updateResponse', result, false);
+                } else {
+                    showResponse('updateResponse', { error: 'No se pudo actualizar' }, true);
+                }
+            } catch (error) {
+                showResponse('updateResponse', { error: error.message }, true);
+            }
+        });
+
+        // CAMBIAR CONTRASEÑA
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const usuarioId = document.getElementById('passwordId').value;
+            const data = {
+                contrasenaActual: document.getElementById('passwordActual').value,
+                contrasenaNueva: document.getElementById('passwordNueva').value
+            };
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/auth/cambiar-password/${usuarioId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showResponse('passwordResponse', result, !response.ok);
+            } catch (error) {
+                showResponse('passwordResponse', { error: error.message }, true);
+            }
+        });
+    </script>
+</body>
+</html>
