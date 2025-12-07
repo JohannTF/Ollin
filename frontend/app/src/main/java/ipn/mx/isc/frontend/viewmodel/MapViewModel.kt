@@ -5,13 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ipn.mx.isc.frontend.data.api.RetrofitClient
 import ipn.mx.isc.frontend.data.api.SseService
+import ipn.mx.isc.frontend.data.model.EstadoMexicano
 import ipn.mx.isc.frontend.data.model.Sismo
+import ipn.mx.isc.frontend.data.model.SismoFilter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class MapViewModel : ViewModel() {
     
@@ -30,12 +36,55 @@ class MapViewModel : ViewModel() {
     private val _sseConnected = MutableStateFlow(false)
     val sseConnected: StateFlow<Boolean> = _sseConnected.asStateFlow()
     
+    private val _filtroActual = MutableStateFlow(SismoFilter.vacio())
+    val filtroActual: StateFlow<SismoFilter> = _filtroActual.asStateFlow()
+    
+    private val _filtrosActivos = MutableStateFlow(false)
+    val filtrosActivos: StateFlow<Boolean> = _filtrosActivos.asStateFlow()
+    
+    // Catálogo de estados cargado localmente
+    private val _estados = MutableStateFlow(EstadoMexicano.obtenerTodos())
+    val estados: StateFlow<List<EstadoMexicano>> = _estados.asStateFlow()
+    
     init {
-        // 1. Cargar datos iniciales desde API (cache o BD)
-        cargarDatosIniciales()
+        // Aplicar filtro por defecto: sismos del mes actual
+        aplicarFiltroMesActual()
         
-        // 2. Conectar SSE para actualizaciones en tiempo real
+        // Conectar SSE para actualizaciones en tiempo real
         conectarSse()
+    }
+    
+    /**
+     * Aplica filtro para mostrar solo sismos del mes actual
+     */
+    private fun aplicarFiltroMesActual() {
+        viewModelScope.launch {
+            val zonaHorariaMexico = ZoneId.of("America/Mexico_City")
+            val primerDiaMes = LocalDate.now(zonaHorariaMexico).withDayOfMonth(1)
+            val fechaActual = LocalDate.now(zonaHorariaMexico)
+            
+            // Convertir a UTC para enviar al backend
+            val fechaInicioUTC = LocalDateTime.of(primerDiaMes, java.time.LocalTime.MIN)
+                .atZone(zonaHorariaMexico)
+                .withZoneSameInstant(ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            
+            val fechaFinUTC = LocalDateTime.of(fechaActual, java.time.LocalTime.MAX)
+                .atZone(zonaHorariaMexico)
+                .withZoneSameInstant(ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            
+            val filtroMesActual = SismoFilter(
+                fechaInicio = fechaInicioUTC,
+                fechaFin = fechaFinUTC
+            )
+            
+            _filtroActual.value = filtroMesActual
+            _filtrosActivos.value = true
+            
+            // Aplicar el filtro
+            aplicarFiltros(filtroMesActual)
+        }
     }
     
     /**
@@ -140,6 +189,40 @@ class MapViewModel : ViewModel() {
      */
     fun cargarSismos() {
         cargarDatosIniciales()
+    }
+    
+    /**
+     * Aplicar filtros de búsqueda
+     */
+    fun aplicarFiltros(filtros: SismoFilter) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            _filtroActual.value = filtros
+            _filtrosActivos.value = filtros.tieneFiltrosActivos()
+            
+            try {
+                Log.d(TAG, "Aplicando filtros: $filtros")
+                val resultado = RetrofitClient.sismosApiService.filtrarSismos(filtros)
+                _sismos.value = resultado
+                Log.d(TAG, "Filtros aplicados: ${resultado.size} sismos encontrados")
+            } catch (e: Exception) {
+                _error.value = "Error al filtrar sismos: ${e.message}"
+                Log.e(TAG, "Error aplicando filtros", e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    
+    /**
+     * Limpiar filtros y volver a la vista por defecto
+     */
+    fun limpiarFiltros() {
+        _filtroActual.value = SismoFilter.vacio()
+        _filtrosActivos.value = false
+        cargarDatosIniciales()
+        Log.d(TAG, "Filtros limpiados, mostrando vista por defecto")
     }
     
     /**

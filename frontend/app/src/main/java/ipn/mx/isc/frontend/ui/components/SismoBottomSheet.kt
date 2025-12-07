@@ -148,11 +148,13 @@ fun SismoBottomSheet(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Fecha y Hora
+            // Fecha y Hora (convertir de UTC a hora local de México)
             val fechaFormateada = try {
-                val dateTime = OffsetDateTime.parse(sismo.fechaHora)
-                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US)
-                "${dateTime.format(formatter)} (Tiempo del Centro)"
+                val dateTimeUTC = OffsetDateTime.parse(sismo.fechaHora)
+                val zonaHorariaMexico = java.time.ZoneId.of("America/Mexico_City")
+                val dateTimeMexico = dateTimeUTC.atZoneSameInstant(zonaHorariaMexico)
+                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss", Locale.US)
+                "${dateTimeMexico.format(formatter)} (Hora de México)"
             } catch (e: Exception) {
                 sismo.fechaHora
             }

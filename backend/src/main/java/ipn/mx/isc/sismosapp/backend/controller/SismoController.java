@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ipn.mx.isc.sismosapp.backend.dto.SismoDTO;
+import ipn.mx.isc.sismosapp.backend.dto.SismoFilterDTO;
 import ipn.mx.isc.sismosapp.backend.service.SismoService;
 import ipn.mx.isc.sismosapp.backend.service.SseEmitterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,4 +70,41 @@ public class SismoController {
     public SseEmitter streamSismos() {
         return sseEmitterService.crearEmitter();
     }
+
+    @Operation(
+        summary = "Filtrar sismos con criterios dinámicos",
+        description = "Permite filtrar sismos combinando múltiples criterios opcionales: magnitud, fechas, estado, profundidad. " +
+                      "Si no se envían filtros, devuelve los 100 sismos más recientes."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Sismos filtrados exitosamente",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = SismoDTO.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Parámetros de filtrado inválidos (ej: rangos incoherentes)",
+            content = @Content(mediaType = "application/json")
+        )
+    })
+    @PostMapping("/filtrar")
+    public ResponseEntity<?> filtrarSismos(@RequestBody SismoFilterDTO filtros) {
+        try {
+            List<SismoDTO> sismos = sismoService.filtrarSismos(filtros);
+            return ResponseEntity.ok(sismos);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(
+                new ErrorResponse(e.getMessage())
+            );
+        }
+    }
+
+    /**
+     * DTO para respuestas de error
+     */
+    private record ErrorResponse(String mensaje) {}
 }

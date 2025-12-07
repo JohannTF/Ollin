@@ -3,6 +3,7 @@ package ipn.mx.isc.frontend.ui.screens
 import android.Manifest
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import ipn.mx.isc.frontend.data.model.Sismo
+import ipn.mx.isc.frontend.ui.components.FilterBottomSheet
 import ipn.mx.isc.frontend.ui.components.PulsingCirclesAnimation
 import ipn.mx.isc.frontend.ui.components.PulsingSismoMarker
 import ipn.mx.isc.frontend.ui.components.SismoBottomSheet
@@ -47,6 +49,7 @@ fun MapScreen(
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
     var selectedSismo by remember { mutableStateOf<Sismo?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showFilterSheet by remember { mutableStateOf(false) }
     
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(19.4326, -99.1332), 6f)
@@ -69,6 +72,9 @@ fun MapScreen(
     val sismos by viewModel.sismos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val filtrosActivos by viewModel.filtrosActivos.collectAsState()
+    val filtroActual by viewModel.filtroActual.collectAsState()
+    val estados by viewModel.estados.collectAsState()
     
     // Recarga automática cada 3 minutos
     LaunchedEffect(Unit) {
@@ -148,6 +154,29 @@ fun MapScreen(
                     }
                 }
 
+                // Botón para abrir filtros
+                FloatingActionButton(
+                    onClick = { showFilterSheet = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 88.dp), // Espacio para el botón de ubicación
+                    containerColor = if (filtrosActivos) {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    },
+                    contentColor = if (filtrosActivos) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = "Filtrar sismos"
+                    )
+                }
+
                 // Botón para centrar en ubicación del usuario
                 FloatingActionButton(
                     onClick = {
@@ -206,6 +235,21 @@ fun MapScreen(
                             showBottomSheet = false
                             selectedSismo = null
                         }
+                    )
+                }
+                
+                // Bottom Sheet de filtros
+                if (showFilterSheet) {
+                    FilterBottomSheet(
+                        onDismiss = { showFilterSheet = false },
+                        onApply = { filtro ->
+                            viewModel.aplicarFiltros(filtro)
+                        },
+                        onClear = {
+                            viewModel.limpiarFiltros()
+                        },
+                        currentFilter = filtroActual,
+                        estados = estados
                     )
                 }
             } else {
