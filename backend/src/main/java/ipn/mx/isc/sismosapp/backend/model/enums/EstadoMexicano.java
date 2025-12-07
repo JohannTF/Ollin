@@ -1,4 +1,4 @@
-package ipn.mx.isc.sismosapp.backend.enums;
+package ipn.mx.isc.sismosapp.backend.model.enums;
 
 import java.util.Arrays;
 import java.util.Optional;

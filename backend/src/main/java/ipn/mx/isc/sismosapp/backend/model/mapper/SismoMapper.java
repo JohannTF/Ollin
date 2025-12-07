@@ -1,7 +1,8 @@
-package ipn.mx.isc.sismosapp.backend.mapper;
+package ipn.mx.isc.sismosapp.backend.model.mapper;
 
-import ipn.mx.isc.sismosapp.backend.dto.SismoDTO;
-import ipn.mx.isc.sismosapp.backend.model.Sismo;
+import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
+import ipn.mx.isc.sismosapp.backend.model.entities.Sismo;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;

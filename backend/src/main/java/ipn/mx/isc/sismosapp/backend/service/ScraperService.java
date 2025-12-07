@@ -1,6 +1,5 @@
 package ipn.mx.isc.sismosapp.backend.service;
 
-import ipn.mx.isc.sismosapp.backend.model.Sismo;
 import org.springframework.beans.factory.annotation.Value;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,6 +8,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import ipn.mx.isc.sismosapp.backend.model.entities.Sismo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

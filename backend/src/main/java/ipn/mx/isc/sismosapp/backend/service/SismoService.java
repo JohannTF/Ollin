@@ -1,10 +1,10 @@
 package ipn.mx.isc.sismosapp.backend.service;
 
-import ipn.mx.isc.sismosapp.backend.dto.SismoDTO;
-import ipn.mx.isc.sismosapp.backend.dto.SismoFilterDTO;
-import ipn.mx.isc.sismosapp.backend.enums.EstadoMexicano;
-import ipn.mx.isc.sismosapp.backend.mapper.SismoMapper;
-import ipn.mx.isc.sismosapp.backend.model.Sismo;
+import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
+import ipn.mx.isc.sismosapp.backend.model.dto.SismoFilterDTO;
+import ipn.mx.isc.sismosapp.backend.model.enums.EstadoMexicano;
+import ipn.mx.isc.sismosapp.backend.model.mapper.SismoMapper;
+import ipn.mx.isc.sismosapp.backend.model.entities.Sismo;
 import ipn.mx.isc.sismosapp.backend.repository.SismoRepository;
 import ipn.mx.isc.sismosapp.backend.specification.SismoSpecification;
 import jakarta.annotation.PostConstruct;
@@ -106,9 +106,6 @@ public class SismoService {
         
         // Ejecutar consulta
         var resultado = sismoRepository.findAll(spec, pageable);
-        
-        logger.info("Filtrado de sismos: {} resultados encontrados (página {}, tamaño {})", 
-            resultado.getTotalElements(), page, size);
         
         return sismoMapper.toDTOList(resultado.getContent());
     }

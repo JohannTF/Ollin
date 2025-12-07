@@ -1,4 +1,4 @@
-package ipn.mx.isc.sismosapp.backend.model;
+package ipn.mx.isc.sismosapp.backend.model.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,8 @@
 package ipn.mx.isc.sismosapp.backend.specification;
 
-import ipn.mx.isc.sismosapp.backend.dto.SismoFilterDTO;
-import ipn.mx.isc.sismosapp.backend.enums.EstadoMexicano;
-import ipn.mx.isc.sismosapp.backend.model.Sismo;
+import ipn.mx.isc.sismosapp.backend.model.dto.SismoFilterDTO;
+import ipn.mx.isc.sismosapp.backend.model.entities.Sismo;
+import ipn.mx.isc.sismosapp.backend.model.enums.EstadoMexicano;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 

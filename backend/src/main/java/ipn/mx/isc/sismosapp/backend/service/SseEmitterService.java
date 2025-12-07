@@ -1,10 +1,11 @@
 package ipn.mx.isc.sismosapp.backend.service;
 
-import ipn.mx.isc.sismosapp.backend.dto.SismoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
 
 import java.io.IOException;
 import java.util.List;

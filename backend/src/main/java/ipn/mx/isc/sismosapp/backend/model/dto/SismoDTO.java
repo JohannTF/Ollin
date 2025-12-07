@@ -1,4 +1,4 @@
-package ipn.mx.isc.sismosapp.backend.dto;
+package ipn.mx.isc.sismosapp.backend.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

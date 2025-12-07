@@ -1,4 +1,4 @@
-package ipn.mx.isc.sismosapp.backend.dto;
+package ipn.mx.isc.sismosapp.backend.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

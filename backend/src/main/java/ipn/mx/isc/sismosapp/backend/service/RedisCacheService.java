@@ -1,6 +1,6 @@
 package ipn.mx.isc.sismosapp.backend.service;
 
-import ipn.mx.isc.sismosapp.backend.dto.SismoDTO;
+import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

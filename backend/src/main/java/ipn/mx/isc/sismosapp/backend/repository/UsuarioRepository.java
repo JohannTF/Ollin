@@ -1,8 +1,9 @@
 package ipn.mx.isc.sismosapp.backend.repository;
 
-import ipn.mx.isc.sismosapp.backend.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import ipn.mx.isc.sismosapp.backend.model.entities.Usuario;
 
 import java.util.Optional;
 

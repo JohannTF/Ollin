@@ -1,6 +1,11 @@
 package ipn.mx.isc.sismosapp.backend.controller;
 
-import ipn.mx.isc.sismosapp.backend.dto.*;
+import ipn.mx.isc.sismosapp.backend.model.dto.UsuarioDTO;
+import ipn.mx.isc.sismosapp.backend.model.requests.ActualizarPerfilRequest;
+import ipn.mx.isc.sismosapp.backend.model.requests.CambiarPasswordRequest;
+import ipn.mx.isc.sismosapp.backend.model.requests.LoginRequest;
+import ipn.mx.isc.sismosapp.backend.model.requests.RegistroRequest;
+import ipn.mx.isc.sismosapp.backend.model.responses.AuthResponse;
 import ipn.mx.isc.sismosapp.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,8 +1,8 @@
 package ipn.mx.isc.sismosapp.backend.scheduler;
 
-import ipn.mx.isc.sismosapp.backend.dto.SismoDTO;
-import ipn.mx.isc.sismosapp.backend.mapper.SismoMapper;
-import ipn.mx.isc.sismosapp.backend.model.Sismo;
+import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
+import ipn.mx.isc.sismosapp.backend.model.mapper.SismoMapper;
+import ipn.mx.isc.sismosapp.backend.model.entities.Sismo;
 import ipn.mx.isc.sismosapp.backend.repository.SismoRepository;
 import ipn.mx.isc.sismosapp.backend.service.RedisCacheService;
 import ipn.mx.isc.sismosapp.backend.service.ScraperService;
