@@ -2,6 +2,7 @@ package ipn.mx.isc.frontend.data.api
 
 import com.google.gson.GsonBuilder
 import ipn.mx.isc.frontend.BuildConfig
+import ipn.mx.isc.frontend.data.api.NotificationApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -35,4 +36,5 @@ object RetrofitClient {
 
     val sismosApiService: SismosApiService = retrofit.create(SismosApiService::class.java)
     val authApiService: AuthApiService = retrofit.create(AuthApiService::class.java)
+    val notificationApiService: NotificationApiService = retrofit.create(NotificationApiService::class.java)
 }

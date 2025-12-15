@@ -4,6 +4,7 @@ import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
 import ipn.mx.isc.sismosapp.backend.model.mapper.SismoMapper;
 import ipn.mx.isc.sismosapp.backend.model.entities.Sismo;
 import ipn.mx.isc.sismosapp.backend.repository.SismoRepository;
+import ipn.mx.isc.sismosapp.backend.service.NotificationService;
 import ipn.mx.isc.sismosapp.backend.service.RedisCacheService;
 import ipn.mx.isc.sismosapp.backend.service.ScraperService;
 import ipn.mx.isc.sismosapp.backend.service.SseEmitterService;
@@ -43,6 +44,9 @@ public class SismoScraperScheduler {
 
     @Autowired
     private SismoMapper sismoMapper;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * Ejecuta el scraping cada 60 segundos
@@ -95,6 +99,7 @@ public class SismoScraperScheduler {
         if (!nuevosSismos.isEmpty()) {
             actualizarCacheConNuevosSismos();
             sseEmitterService.enviarNuevosSismos(nuevosSismos);
+            notificationService.notificarSismosCriticos(nuevosSismos, 5.5);
             logger.info("Cache actualizado y {} nuevos sismos enviados via SSE", nuevosSismos.size());
         }
         

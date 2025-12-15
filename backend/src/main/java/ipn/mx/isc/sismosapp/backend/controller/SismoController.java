@@ -9,9 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
 import ipn.mx.isc.sismosapp.backend.model.dto.SismoFilterDTO;
+import ipn.mx.isc.sismosapp.backend.model.requests.SismoRequest;
 import ipn.mx.isc.sismosapp.backend.service.SismoService;
 import ipn.mx.isc.sismosapp.backend.service.SseEmitterService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -107,4 +110,39 @@ public class SismoController {
      * DTO para respuestas de error
      */
     private record ErrorResponse(String mensaje) {}
+
+    @Operation(
+        summary = "Crear sismo manual",
+        description = "Permite registrar un sismo inventado con fuente distinta a SSN"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Sismo creado"),
+        @ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    })
+    @PostMapping("/manual")
+    public ResponseEntity<?> crearSismoManual(@Valid @RequestBody SismoRequest request) {
+        try {
+            SismoDTO dto = sismoService.crearSismoManual(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @Operation(
+        summary = "Eliminar sismo por id",
+        description = "Elimina un sismo registrado manualmente u obtenido del scraper"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Sismo eliminado"),
+        @ApiResponse(responseCode = "404", description = "No encontrado")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarSismo(@PathVariable String id) {
+        boolean eliminado = sismoService.eliminarSismo(id);
+        if (eliminado) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

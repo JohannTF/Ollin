@@ -4,6 +4,7 @@ import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
 import ipn.mx.isc.sismosapp.backend.model.dto.SismoFilterDTO;
 import ipn.mx.isc.sismosapp.backend.model.enums.EstadoMexicano;
 import ipn.mx.isc.sismosapp.backend.model.mapper.SismoMapper;
+import ipn.mx.isc.sismosapp.backend.model.requests.SismoRequest;
 import ipn.mx.isc.sismosapp.backend.model.entities.Sismo;
 import ipn.mx.isc.sismosapp.backend.repository.SismoRepository;
 import ipn.mx.isc.sismosapp.backend.specification.SismoSpecification;
@@ -33,6 +34,12 @@ public class SismoService {
 
     @Autowired
     private SismoMapper sismoMapper;
+
+    @Autowired
+    private SseEmitterService sseEmitterService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * Inicializa el cache Redis al arrancar la aplicación
@@ -81,6 +88,48 @@ public class SismoService {
         return sismoMapper.toDTOList(
             sismoRepository.findAll(pageable).getContent()
         );
+    }
+
+    /**
+     * Crea un sismo manual (fuente distinta a SSN) y emite a SSE + notificaciones críticas.
+     */
+    public SismoDTO crearSismoManual(SismoRequest request) {
+        String fuente = (request.getFuente() == null || request.getFuente().isBlank() || "SSN".equalsIgnoreCase(request.getFuente()))
+            ? "Personal"
+            : request.getFuente();
+
+        Sismo sismo = new Sismo();
+        sismo.setFechaHora(request.getFechaHora());
+        sismo.setLatitud(request.getLatitud());
+        sismo.setLongitud(request.getLongitud());
+        sismo.setMagnitud(request.getMagnitud());
+        sismo.setProfundidadKm(request.getProfundidadKm());
+        sismo.setLugar(request.getLugar());
+        sismo.setFuente(fuente);
+
+        Sismo guardado = sismoRepository.save(sismo);
+        SismoDTO dto = sismoMapper.toDTO(guardado);
+
+        refrescarCacheRecientes();
+        sseEmitterService.enviarNuevosSismos(List.of(dto));
+        notificationService.notificarSismosCriticos(List.of(dto), 4.0);
+
+        return dto;
+    }
+
+    /**
+     * Elimina un sismo por id. Devuelve true si existía.
+     */
+    public boolean eliminarSismo(String id) {
+        if (id == null || id.isBlank()) {
+            return false;
+        }
+
+        return sismoRepository.findById(id).map(existing -> {
+            sismoRepository.deleteById(id);
+            refrescarCacheRecientes();
+            return true;
+        }).orElse(false);
     }
 
     /**
@@ -158,5 +207,13 @@ public class SismoService {
                 );
             }
         }
+    }
+
+    private void refrescarCacheRecientes() {
+        var pageable = PageRequest.of(0, MAX_SISMOS_RECIENTES, Sort.by(Sort.Direction.DESC, "fechaHora"));
+        List<SismoDTO> sismosActualizados = sismoMapper.toDTOList(
+            sismoRepository.findAll(pageable).getContent()
+        );
+        redisCacheService.guardarSismosRecientes(sismosActualizados);
     }
 }

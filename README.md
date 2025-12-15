@@ -58,7 +58,10 @@ DB_PASSWORD=your_password
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
+FIREBASE_SERVICE_ACCOUNT_PATH=[fileName].json
 ```
+
+> **Important**: Place the Firebase service account JSON file in the `backend/` directory. This file is ignored by git for security.
 
 3. Start services:
 ```bash
@@ -95,11 +98,16 @@ BACKEND_URL=http://10.0.2.2:8080/
 
 > **Note**: Use `http://10.0.2.2:8080/` for emulator or `http://YOUR_LOCAL_IP:8080/` for physical device
 
-3. Get Google Maps API Key from [Google Cloud Console](https://console.cloud.google.com/)
+3. Place Firebase Google Services file:
+   - Download `google-services.json` from Firebase Console
+   - Place it in `frontend/app/`
+   - This file is automatically ignored by git for security
 
-4. Sync dependencies: **File → Sync Project with Gradle Files**
+4. Get Google Maps API Key from [Google Cloud Console](https://console.cloud.google.com/)
 
-5. Run the app:
+5. Sync dependencies: **File → Sync Project with Gradle Files**
+
+6. Run the app:
 ```bash
 ./gradlew installDebug
 ```

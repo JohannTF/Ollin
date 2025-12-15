@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
+import com.google.firebase.messaging.FirebaseMessaging
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.decode.DataSource
@@ -21,6 +22,17 @@ class MyApplication : Application(), ImageLoaderFactory {
         Log.d("MyApplication", "========================================")
         Log.d("MyApplication", "APPLICATION INITIALIZED WITH BASE64 SUPPORT")
         Log.d("MyApplication", "========================================")
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                task.result?.let { token ->
+                    ipn.mx.isc.frontend.notification.NotificationRegistrar.registerToken(token)
+                    Log.d("MyApplication", "FCM token obtained: $token")
+                }
+            } else {
+                Log.e("MyApplication", "Failed to get FCM token", task.exception)
+            }
+        }
     }
 
     override fun newImageLoader(): ImageLoader {
