@@ -35,4 +35,5 @@ object RetrofitClient {
 
     val sismosApiService: SismosApiService = retrofit.create(SismosApiService::class.java)
     val authApiService: AuthApiService = retrofit.create(AuthApiService::class.java)
+    val reportesApiService: ReportesApiService = retrofit.create(ReportesApiService::class.java)
 }

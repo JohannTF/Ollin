@@ -32,6 +32,9 @@ dependencies {
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 	implementation "org.jsoup:jsoup:1.7.2"
+	implementation 'com.opencsv:opencsv:5.9'
+	//Librería para generar PDFs
+	implementation 'com.itextpdf:itext7-core:7.2.5'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'

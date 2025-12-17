@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Carpeta de descargas públicas -->
+    <external-path 
+        name="external_files" 
+        path="." />
+    
+    <!-- Carpeta Downloads específica -->
+    <external-path 
+        name="downloads" 
+        path="Download/" />
+    
+    <!-- Carpeta de archivos de la app -->
+    <files-path 
+        name="app_files" 
+        path="." />
+</paths>
