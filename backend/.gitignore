@@ -38,4 +38,4 @@ out/
 .env
 
 ### FIREBASE ###
-*firebase*.json
+sismosapp-firebase.json
