@@ -7,7 +7,7 @@ import ipn.mx.isc.sismosapp.backend.repository.SismoRepository;
 import ipn.mx.isc.sismosapp.backend.service.NotificationService;
 import ipn.mx.isc.sismosapp.backend.service.RedisCacheService;
 import ipn.mx.isc.sismosapp.backend.service.ScraperService;
-import ipn.mx.isc.sismosapp.backend.service.SseEmitterService;
+import ipn.mx.isc.sismosapp.backend.service.FcmDataMessagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class SismoScraperScheduler {
     private RedisCacheService redisCacheService;
 
     @Autowired
-    private SseEmitterService sseEmitterService;
+    private FcmDataMessagingService fcmDataMessagingService;
 
     @Autowired
     private SismoMapper sismoMapper;
@@ -72,7 +72,7 @@ public class SismoScraperScheduler {
 
         for (Sismo sismo : sismosExtraidos) {
             // Verificar si ya existe en cache (optimización)
-            if (sismosEnCache != null && existeEnCache(sismo, sismosEnCache)) {
+            if (sismosEnCache != null) {
                 duplicados++;
                 continue;
             }
@@ -95,28 +95,14 @@ public class SismoScraperScheduler {
 
         logger.info("Scraping finalizado. Nuevos: {}, Duplicados: {}", nuevos, duplicados);
 
-        // Si hay nuevos sismos, actualizar cache y notificar via SSE
+        // Si hay nuevos sismos, actualizar cache y enviar via FCM data messaging
         if (!nuevosSismos.isEmpty()) {
             actualizarCacheConNuevosSismos();
-            sseEmitterService.enviarNuevosSismos(nuevosSismos);
+            fcmDataMessagingService.enviarSismosADispositivos(nuevosSismos);
             notificationService.notificarSismosCriticos(nuevosSismos, 5.5);
-            logger.info("Cache actualizado y {} nuevos sismos enviados via SSE", nuevosSismos.size());
         }
         
-        logger.info(null);
-    }
-
-    /**
-     * Verifica si un sismo ya existe en el cache
-     * Usa comparación por campos clave con tolerancia para coordenadas
-     */
-    private boolean existeEnCache(Sismo sismo, List<SismoDTO> cache) {
-        return cache.stream().anyMatch(dto ->
-            dto.getFechaHora().equals(sismo.getFechaHora()) &&
-            Math.abs(dto.getLatitud() - sismo.getLatitud()) < 0.0001 &&
-            Math.abs(dto.getLongitud() - sismo.getLongitud()) < 0.0001 &&
-            Math.abs(dto.getMagnitud() - sismo.getMagnitud()) < 0.01
-        );
+        logger.info("");
     }
 
     /**

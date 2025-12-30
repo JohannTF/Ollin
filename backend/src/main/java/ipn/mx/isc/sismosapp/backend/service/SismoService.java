@@ -36,7 +36,7 @@ public class SismoService {
     private SismoMapper sismoMapper;
 
     @Autowired
-    private SseEmitterService sseEmitterService;
+    private FcmDataMessagingService fcmDataMessagingService;
 
     @Autowired
     private NotificationService notificationService;
@@ -91,7 +91,7 @@ public class SismoService {
     }
 
     /**
-     * Crea un sismo manual (fuente distinta a SSN) y emite a SSE + notificaciones críticas.
+     * Crea un sismo manual (fuente distinta a SSN) y notifica via FCM data + notificaciones críticas.
      */
     public SismoDTO crearSismoManual(SismoRequest request) {
         String fuente = (request.getFuente() == null || request.getFuente().isBlank() || "SSN".equalsIgnoreCase(request.getFuente()))
@@ -111,7 +111,7 @@ public class SismoService {
         SismoDTO dto = sismoMapper.toDTO(guardado);
 
         refrescarCacheRecientes();
-        sseEmitterService.enviarNuevosSismos(List.of(dto));
+        fcmDataMessagingService.enviarSismosADispositivos(List.of(dto));
         notificationService.notificarSismosCriticos(List.of(dto), 4.0);
 
         return dto;

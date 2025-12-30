@@ -38,8 +38,6 @@ public class ScraperService {
                 .get();
 
             Elements rows = document.select("tr.1days, tr.2days");
-            logger.info("Sismos encontrados: {}", rows.size());
-
             for (Element row : rows) {
                 try {
                     Sismo sismo = parseSismoFromRow(row);
@@ -51,7 +49,7 @@ public class ScraperService {
                 }
             }
 
-            logger.info("Scraping completado. Sismos extraidos: {}", sismos.size());
+            logger.info("Scraping completado. Sismos encontrados {}. Sismos extraidos: {}", rows.size(), sismos.size());
 
         } catch (Exception e) {
             logger.error("Error durante scraping: {}", e.getMessage(), e);

@@ -11,14 +11,11 @@ import ipn.mx.isc.sismosapp.backend.model.dto.SismoDTO;
 import ipn.mx.isc.sismosapp.backend.model.dto.SismoFilterDTO;
 import ipn.mx.isc.sismosapp.backend.model.requests.SismoRequest;
 import ipn.mx.isc.sismosapp.backend.service.SismoService;
-import ipn.mx.isc.sismosapp.backend.service.SseEmitterService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -29,9 +26,6 @@ public class SismoController {
 
     @Autowired
     private SismoService sismoService;
-
-    @Autowired
-    private SseEmitterService sseEmitterService;
 
     @Operation(
         summary = "Obtener sismos con paginación",
@@ -61,23 +55,6 @@ public class SismoController {
     @Operation(
         summary = "Stream de sismos en tiempo real",
         description = "Establece una conexión SSE para recibir notificaciones de nuevos sismos en tiempo real"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Conexión SSE establecida exitosamente",
-            content = @Content(mediaType = "text/event-stream")
-        )
-    })
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamSismos() {
-        return sseEmitterService.crearEmitter();
-    }
-
-    @Operation(
-        summary = "Filtrar sismos con criterios dinámicos",
-        description = "Permite filtrar sismos combinando múltiples criterios opcionales: magnitud, fechas, estado, profundidad. " +
-                      "Si no se envían filtros, devuelve los 100 sismos más recientes."
     )
     @ApiResponses(value = {
         @ApiResponse(

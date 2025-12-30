@@ -82,12 +82,10 @@ public class NotificationService {
             .collect(Collectors.toList());
 
         if (tokens.isEmpty()) {
-            logger.info("No hay tokens registrados; se omiten notificaciones");
+            logger.info("No hay tokens registrados; Se omiten notificaciones");
             return;
         }
 
-        logger.info("Enviando notificaciones de {} sismos críticos a {} dispositivos", criticos.size(), tokens.size());
-        
         for (SismoDTO sismo : criticos) {
             enviarNotificacion(tokens, sismo);
         }
