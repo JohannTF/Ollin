@@ -38,6 +38,17 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    
+    // Permisos de ubicación y notificaciones
+    val allPermissions = buildList {
+        add(Manifest.permission.ACCESS_FINE_LOCATION)
+        add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+    
+    val permissionsState = rememberMultiplePermissionsState(allPermissions)
     val locationPermissionsState = rememberMultiplePermissionsState(
         listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -108,9 +119,16 @@ fun MapScreen(
         }
     }
 
+    // Solicitar permisos al iniciar
+    LaunchedEffect(Unit) {
+        if (!permissionsState.allPermissionsGranted) {
+            permissionsState.launchMultiplePermissionRequest()
+        }
+    }
+
     if (visible) {
         Box(modifier = modifier.fillMaxSize()) {
-            if (locationPermissionsState.allPermissionsGranted) {
+            if (permissionsState.allPermissionsGranted) {
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
@@ -245,11 +263,26 @@ fun MapScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Se requieren permisos de ubicación",
-                        style = MaterialTheme.typography.titleMedium
+                        text = "Permisos requeridos",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { locationPermissionsState.launchMultiplePermissionRequest() }) {
+                    Text(
+                        text = "Esta aplicación necesita acceso a:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Text(
+                        text = "• Ubicación: para mostrar sismos cercanos",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = "• Notificaciones: para alertas de sismos",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+                    Button(onClick = { permissionsState.launchMultiplePermissionRequest() }) {
                         Text("Conceder permisos")
                     }
                 }
