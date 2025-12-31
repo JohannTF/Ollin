@@ -1,6 +1,5 @@
 package ipn.mx.isc.frontend.notification
 
-import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
@@ -38,10 +37,6 @@ class EarthquakeMessagingService : FirebaseMessagingService() {
         }
     }
 
-    /**
-     * Procesa mensajes data con lista de sismos
-     * Estructura: {"sismos": "[{...}, {...}]"}
-     */
     private fun handleSismosDataMessage(sismosJson: String) {
         try {
             val listType = object : TypeToken<List<Sismo>>() {}.type
@@ -51,44 +46,21 @@ class EarthquakeMessagingService : FirebaseMessagingService() {
             serviceScope.launch {
                 SismosDataBroadcast.emitirSismos(sismos)
             }
-            
-            // Mostrar notificación visual para sismos críticos (magnitud >= 5.5)
-            for (sismo in sismos) {
-                if (sismo.magnitud >= 5.5) {
-                    showNotification(
-                        context = applicationContext,
-                        title = "Earthquake M${sismo.magnitud}",
-                        body = "${sismo.lugar} • Depth ${sismo.profundidadKm} km"
-                    )
-                }
-            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error parseando sismos desde FCM data", e)
+            // Error ocurred
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        serviceScope.cancel()
-    }
-
-    /**
-     * Procesa notificaciones tradicionales de sismos críticos
-     */
     private fun handleNotificationMessage(message: RemoteMessage) {
         val notification = message.notification ?: return
-        val title = notification.title ?: "Earthquake Alert"
-        val body = notification.body ?: "New earthquake detected"
+        val title = notification.title ?: "🚨 ALERTA! Sismo Detectado"
+        val body = notification.body ?: "NUEVO SISMO!!"
         
         showNotification(
             context = applicationContext,
             title = title,
             body = body
         )
-    }
-
-    companion object {
-        private const val TAG = "EarthquakeFCM"
     }
 }
 

@@ -274,13 +274,13 @@ fun FilterBottomSheet(
                 
                 Button(
                     onClick = {
-                        // Convertir fechas locales a UTC para enviar al backend
-                        val fechaInicioUTC = LocalDateTime.of(fechaInicio, java.time.LocalTime.MIN)
+                        // Convertir fechas locales a UTC para enviar al backend 
+                        val fechaInicioUTC = LocalDateTime.of(fechaInicio, java.time.LocalTime.of(0, 0, 0))
                             .atZone(zonaHorariaMexico)
                             .withZoneSameInstant(ZoneId.of("UTC"))
                             .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                         
-                        val fechaFinUTC = LocalDateTime.of(fechaFin, java.time.LocalTime.MAX)
+                        val fechaFinUTC = LocalDateTime.of(fechaFin, java.time.LocalTime.of(23, 59, 59))
                             .atZone(zonaHorariaMexico)
                             .withZoneSameInstant(ZoneId.of("UTC"))
                             .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)

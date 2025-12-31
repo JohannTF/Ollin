@@ -100,8 +100,8 @@ public class NotificationService {
         data.put("fechaHora", sismo.getFechaHora().toString());
 
         Notification notification = Notification.builder()
-            .setTitle("Earthquake M" + sismo.getMagnitud())
-            .setBody(sismo.getLugar() + " • Depth " + sismo.getProfundidadKm() + " km")
+            .setTitle("🚨 ALERTA! Sismo Detectado")
+            .setBody(sismo.getLugar() + " • Magnitud " + sismo.getMagnitud())
             .build();
 
         for (String token : tokens) {

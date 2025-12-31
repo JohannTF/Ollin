@@ -23,7 +23,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import ipn.mx.isc.frontend.data.model.Sismo
 import ipn.mx.isc.frontend.ui.components.FilterBottomSheet
-import ipn.mx.isc.frontend.ui.components.PulsingCirclesAnimation
 import ipn.mx.isc.frontend.ui.components.PulsingSismoMarker
 import ipn.mx.isc.frontend.ui.components.SismoBottomSheet
 import ipn.mx.isc.frontend.utils.SismoColorUtils
@@ -76,11 +75,14 @@ fun MapScreen(
     val filtroActual by viewModel.filtroActual.collectAsState()
     val estados by viewModel.estados.collectAsState()
     
-    // Recarga automática cada 3 minutos
-    LaunchedEffect(Unit) {
-        while (true) {
-            kotlinx.coroutines.delay(180000)
+    // Carga inicial
+    LaunchedEffect(visible) {
+        if (visible) {
             viewModel.cargarSismos()
+            while (true) {
+                kotlinx.coroutines.delay(180000)
+                viewModel.cargarSismos()
+            }
         }
     }
 
@@ -112,37 +114,19 @@ fun MapScreen(
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
-                    properties = MapProperties(isMyLocationEnabled = false),
+                    properties = MapProperties(isMyLocationEnabled = true),
                     uiSettings = MapUiSettings(
                         zoomControlsEnabled = false,
                         myLocationButtonEnabled = false
                     )
                 ) {
-                    // Marcador de ubicación del usuario
-                    userLocation?.let { location ->
-                        MarkerComposable(
-                            state = MarkerState(location),
-                            anchor = Offset(0.5f, 0.5f)
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.size(80.dp)
-                            ) {
-                                PulsingCirclesAnimation(
-                                    color = Color(0xFF4285F4),
-                                    baseSize = 12f
-                                )
-                            }
-                        }
-                    }
-                    
                     // Marcadores de sismos
                     sismos.forEach { sismo ->
                         val color = SismoColorUtils.getColorForMagnitud(sismo.magnitud)
                         val baseSize = SismoColorUtils.getSizeForMagnitud(sismo.magnitud)
                         
                         PulsingSismoMarker(
-                            position = com.google.android.gms.maps.model.LatLng(sismo.latitud, sismo.longitud),
+                            position = LatLng(sismo.latitud, sismo.longitud),
                             color = color,
                             baseSize = baseSize,
                             isSelected = selectedSismo?.id == sismo.id,

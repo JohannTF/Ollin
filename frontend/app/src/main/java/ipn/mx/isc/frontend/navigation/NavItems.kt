@@ -16,16 +16,4 @@ sealed class NavItem(
     data object Alerts : NavItem("alerts", Icons.Outlined.Notifications, "Alertas")
     data object Reports : NavItem("reports", Icons.Outlined.Analytics, "Reportes")
     data object Settings : NavItem("settings", Icons.Outlined.Settings, "Ajustes")
-
-    companion object {
-        fun fromRoute(route: String?): NavItem {
-            return when (route) {
-                Map.route -> Map
-                Alerts.route -> Alerts
-                Reports.route -> Reports
-                Settings.route -> Settings
-                else -> Map
-            }
-        }
-    }
 }

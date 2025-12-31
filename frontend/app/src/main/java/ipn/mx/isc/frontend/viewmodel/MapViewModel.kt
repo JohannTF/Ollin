@@ -42,49 +42,11 @@ class MapViewModel : ViewModel() {
     val estados: StateFlow<List<EstadoMexicano>> = _estados.asStateFlow()
     
     init {
-        // Aplicar filtro por defecto: sismos del mes actual
-        aplicarFiltroMesActual()
-        
-        // Suscribirse a actualizaciones FCM data
         suscribirseAFcmData()
     }
     
     /**
-     * Aplica filtro para mostrar solo sismos del mes actual
-     */
-    private fun aplicarFiltroMesActual() {
-        viewModelScope.launch {
-            val zonaHorariaMexico = ZoneId.of("America/Mexico_City")
-            val primerDiaMes = LocalDate.now(zonaHorariaMexico).withDayOfMonth(1)
-            val fechaActual = LocalDate.now(zonaHorariaMexico)
-            
-            // Convertir a UTC para enviar al backend
-            val fechaInicioUTC = LocalDateTime.of(primerDiaMes, java.time.LocalTime.MIN)
-                .atZone(zonaHorariaMexico)
-                .withZoneSameInstant(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            
-            val fechaFinUTC = LocalDateTime.of(fechaActual, java.time.LocalTime.MAX)
-                .atZone(zonaHorariaMexico)
-                .withZoneSameInstant(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            
-            val filtroMesActual = SismoFilter(
-                fechaInicio = fechaInicioUTC,
-                fechaFin = fechaFinUTC
-            )
-            
-            _filtroActual.value = filtroMesActual
-            _filtrosActivos.value = true
-            
-            // Aplicar el filtro
-            aplicarFiltros(filtroMesActual)
-        }
-    }
-    
-    /**
      * Carga inicial: obtiene datos existentes del servidor
-     * Esto maneja el caso de cliente nuevo o que vuelve a abrir la app
      */
     fun cargarSismos() {
         viewModelScope.launch {
@@ -98,8 +60,7 @@ class MapViewModel : ViewModel() {
                 )
                 _sismos.value = resultado
             } catch (e: Exception) {
-                _error.value = "Error al cargar sismos iniciales: ${e.message}"
-                Log.e(TAG, "Error cargando datos iniciales", e)
+                _error.value = "Error al cargar sismos"
             } finally {
                 _isLoading.value = false
             }
@@ -121,7 +82,6 @@ class MapViewModel : ViewModel() {
     
     /**
      * Fusiona sismos nuevos con existentes, evitando duplicados
-     * Los sismos se identifican por su ID único
      */
     private fun fusionarSismos(nuevos: List<Sismo>, existentes: List<Sismo>): List<Sismo> {
         val mapa = existentes.associateBy { it.id }.toMutableMap()
