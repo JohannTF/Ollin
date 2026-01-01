@@ -71,8 +71,13 @@ public class SismoScraperScheduler {
         int duplicados = 0;
 
         for (Sismo sismo : sismosExtraidos) {
-            // Verificar si ya existe en cache (optimización)
-            if (sismosEnCache != null) {
+            // Verificar si ya existe en cache 
+            if (sismosEnCache != null && sismosEnCache.stream().anyMatch(s -> 
+                s.getFechaHora().equals(sismo.getFechaHora()) &&
+                s.getLatitud().equals(sismo.getLatitud()) &&
+                s.getLongitud().equals(sismo.getLongitud()) &&
+                s.getMagnitud().equals(sismo.getMagnitud())
+            )) {
                 duplicados++;
                 continue;
             }
