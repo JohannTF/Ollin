@@ -34,10 +34,6 @@ fun HomeScreen(
                 visible = currentRoute == NavItem.Map.route
             )
             
-            if (currentRoute == NavItem.Alerts.route) {
-                AlertsScreen()
-            }
-            
             if (currentRoute == NavItem.Reports.route) {
                 ReportsScreen()
             }

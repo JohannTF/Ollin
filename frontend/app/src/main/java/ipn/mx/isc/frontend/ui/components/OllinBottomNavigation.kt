@@ -18,7 +18,6 @@ fun OllinBottomNavigation(
     ) {
         val items = listOf(
             NavItem.Map,
-            NavItem.Alerts,
             NavItem.Reports,
             NavItem.Settings
         )
