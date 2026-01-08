@@ -112,9 +112,31 @@ BACKEND_URL=http://10.0.2.2:8080/
 ./gradlew installDebug
 ```
 
-## 📖 Documentation
+## Screenshots
 
-- API Docs: http://localhost:8080/swagger-ui/index.html
+### Authentication
+<p align="center">
+  <img src="docs/imgs/login.png" width="250" alt="Login Screen"/>
+  <img src="docs/imgs/sign_up.png" width="250" alt="Sign Up Screen"/>
+</p>
+
+### Main Features
+<p align="center">
+  <img src="docs/imgs/map.jpg" width="250" alt="Seismic Map"/>
+  <img src="docs/imgs/report_3m.jpg" width="250" alt="Top Earthquakes List"/>
+  <img src="docs/imgs/distribution-activity.jpg" width="250" alt="Top Earthquakes List"/>
+  <img src="docs/imgs/states.jpg" width="250" alt="States View"/>
+  <img src="docs/imgs/toplist.jpg" width="250" alt="States View"/>
+</p>
+
+### Notifications
+<p align="center">
+  <img src="docs/imgs/notification.jpg" width="250" alt="Push Notifications"/>
+</p>
+
+### 📖 Documentation
+
+- API Docs (When server is running): http://localhost:8080/swagger-ui/index.html
 - Data source: [Servicio Sismológico Nacional](http://www.ssn.unam.mx)
 
 ## 📝 License
